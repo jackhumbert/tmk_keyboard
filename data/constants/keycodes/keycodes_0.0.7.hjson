@@ -1,12 +1,12 @@
 {
     "ranges": {
-        "0x5300/0x001F": {
+        "0x5302/0x001F": {
             "define": "QK_POINTING_MODE_MO"
         },
-        "0x5320/0x001F": {
+        "0x5322/0x001F": {
             "define": "QK_POINTING_MODE_TG"
         },
-        "0x5340/0x0002": {
+        "0x5342/0x0002": {
             "define": "QK_POINTING_MODE_UTIL"
         }
     }
