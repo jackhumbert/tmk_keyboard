@@ -19,6 +19,8 @@
 
 #pragma once
 
+#define VIA_FIRMWARE_VERSION 1
+
 // These pins are not broken out, and cannot be used normally.
 // They are set as output and pulled high, by default
 #define UNUSABLE_PINS \

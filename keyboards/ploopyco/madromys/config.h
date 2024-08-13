@@ -18,6 +18,8 @@
 
 #pragma once
 
+#define VIA_FIRMWARE_VERSION 1
+
 #define UNUSABLE_PINS \
     { GP1, GP3, GP4, GP6, GP8, GP10, GP14, GP16, GP18, GP20, GP22, GP24, GP25, GP26, GP27, GP28, GP29 }
 
