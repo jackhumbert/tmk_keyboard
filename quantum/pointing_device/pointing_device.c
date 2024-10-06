@@ -25,6 +25,10 @@
 #    include "mousekey.h"
 #endif
 
+#ifdef POINTING_DEVICE_HIRES_SCROLL_ENABLE
+#    include "usb_descriptor_common.h"
+#endif
+
 #if (defined(POINTING_DEVICE_ROTATION_90) + defined(POINTING_DEVICE_ROTATION_180) + defined(POINTING_DEVICE_ROTATION_270)) > 1
 #    error More than one rotation selected.  This is not supported.
 #endif
@@ -78,6 +82,9 @@ uint16_t pointing_device_get_shared_cpi(void) {
 
 static report_mouse_t local_mouse_report         = {};
 static bool           pointing_device_force_send = false;
+#ifdef POINTING_DEVICE_HIRES_SCROLL_ENABLE
+static uint16_t hires_scroll_resolution;
+#endif
 
 extern const pointing_device_driver_t pointing_device_driver;
 
@@ -155,6 +162,12 @@ __attribute__((weak)) void pointing_device_init(void) {
 #    endif
 #endif
     }
+#ifdef POINTING_DEVICE_HIRES_SCROLL_ENABLE
+    hires_scroll_resolution = POINTING_DEVICE_HIRES_SCROLL_MULTIPLIER;
+    for (int i = 0; i < POINTING_DEVICE_HIRES_SCROLL_EXPONENT; i++) {
+        hires_scroll_resolution *= 10;
+    }
+#endif
 
     pointing_device_init_kb();
     pointing_device_init_user();
@@ -377,28 +390,28 @@ void pointing_device_set_cpi_on_side(bool left, uint16_t cpi) {
 }
 
 /**
- * @brief clamps int16_t to int8_t
+ * @brief clamps int16_t to int8_t, or int32_t to int16_t
  *
- * @param[in] int16_t value
- * @return int8_t clamped value
+ * @param[in] hv_clamp_range_t value
+ * @return mouse_hv_report_t clamped value
  */
-static inline int8_t pointing_device_hv_clamp(int16_t value) {
-    if (value < INT8_MIN) {
-        return INT8_MIN;
-    } else if (value > INT8_MAX) {
-        return INT8_MAX;
+static inline mouse_hv_report_t pointing_device_hv_clamp(hv_clamp_range_t value) {
+    if (value < HV_REPORT_MIN) {
+        return HV_REPORT_MIN;
+    } else if (value > HV_REPORT_MAX) {
+        return HV_REPORT_MAX;
     } else {
         return value;
     }
 }
 
 /**
- * @brief clamps int16_t to int8_t
+ * @brief clamps int16_t to int8_t, or int32_t to int16_t
  *
- * @param[in] clamp_range_t value
+ * @param[in] xy_clamp_range_t value
  * @return mouse_xy_report_t clamped value
  */
-static inline mouse_xy_report_t pointing_device_xy_clamp(clamp_range_t value) {
+static inline mouse_xy_report_t pointing_device_xy_clamp(xy_clamp_range_t value) {
     if (value < XY_REPORT_MIN) {
         return XY_REPORT_MIN;
     } else if (value > XY_REPORT_MAX) {
@@ -419,10 +432,10 @@ static inline mouse_xy_report_t pointing_device_xy_clamp(clamp_range_t value) {
  * @return combined report_mouse_t of left_report and right_report
  */
 report_mouse_t pointing_device_combine_reports(report_mouse_t left_report, report_mouse_t right_report) {
-    left_report.x = pointing_device_xy_clamp((clamp_range_t)left_report.x + right_report.x);
-    left_report.y = pointing_device_xy_clamp((clamp_range_t)left_report.y + right_report.y);
-    left_report.h = pointing_device_hv_clamp((int16_t)left_report.h + right_report.h);
-    left_report.v = pointing_device_hv_clamp((int16_t)left_report.v + right_report.v);
+    left_report.x = pointing_device_xy_clamp((xy_clamp_range_t)left_report.x + right_report.x);
+    left_report.y = pointing_device_xy_clamp((xy_clamp_range_t)left_report.y + right_report.y);
+    left_report.h = pointing_device_hv_clamp((hv_clamp_range_t)left_report.h + right_report.h);
+    left_report.v = pointing_device_hv_clamp((hv_clamp_range_t)left_report.v + right_report.v);
     left_report.buttons |= right_report.buttons;
     return left_report;
 }
@@ -502,3 +515,9 @@ __attribute__((weak)) void pointing_device_keycode_handler(uint16_t keycode, boo
         pointing_device_send();
     }
 }
+
+#ifdef POINTING_DEVICE_HIRES_SCROLL_ENABLE
+uint16_t pointing_device_get_hires_scroll_resolution(void) {
+    return hires_scroll_resolution;
+}
+#endif
