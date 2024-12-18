@@ -931,6 +931,7 @@ ifeq ($(strip $(BATTERY_DRIVER_REQUIRED)), yes)
         $(call CATASTROPHIC_ERROR,Invalid BATTERY_DRIVER,BATTERY_DRIVER="$(BATTERY_DRIVER)" is not a valid battery driver)
     endif
 
+    OPT_DEFS += -DBATTERY_DRIVER
     OPT_DEFS += -DBATTERY_$(strip $(shell echo $(BATTERY_DRIVER) | tr '[:lower:]' '[:upper:]'))
 
     COMMON_VPATH += $(DRIVER_PATH)/battery
