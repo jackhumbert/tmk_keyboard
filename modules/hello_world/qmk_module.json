@@ -1,0 +1,10 @@
+{
+    "module_name": "Hello World",
+    "maintainer": "QMK Maintainers",
+    "features": {
+        "deferred_exec": true
+    },
+    "keycodes": [
+        { "key": "CM_HELLO" }
+    ]
+}
