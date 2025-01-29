@@ -23,3 +23,23 @@ bool usb_vbus_state(void) {
     return gpio_read_pin(USB_VBUS_PIN);
 }
 #endif
+
+#ifdef USER_BUTTON_PIN
+void user_button_init(void) {
+    // Pin needs to be configured as input low
+    gpio_set_pin_input_low(USER_BUTTON_PIN);
+}
+
+bool check_user_button_state(void) {
+    return gpio_read_pin(USER_BUTTON_PIN);
+}
+#endif // USER_BUTTON_PIN
+
+void board_init(void) {
+    // Board setup sets these pins as SPI, but we aren't using them as such.
+    // So to prevent them from misbehaving, we need to set them to a different, non-spi mode.
+    // This is a bit of a hack, but nothing else runs soon enough, without re-implementing spi_init().
+    gpio_set_pin_input(A5);
+    gpio_set_pin_input(A6);
+    gpio_set_pin_input(A7);
+}
